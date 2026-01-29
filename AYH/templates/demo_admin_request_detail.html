@@ -1,0 +1,250 @@
+{% extends 'base.html' %}
+
+{% block title %}Blood Request Details - Admin{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .detail-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    
+    .detail-container h2 {
+        color: #2c3e50;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+    
+    .request-info {
+        background: #f8f9fa;
+        padding: 25px;
+        border-radius: 10px;
+        margin-bottom: 30px;
+    }
+    
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+    }
+    
+    .info-item {
+        padding: 15px;
+        background: white;
+        border-radius: 5px;
+        border-left: 4px solid #667eea;
+    }
+    
+    .info-item label {
+        display: block;
+        font-size: 12px;
+        color: #777;
+        text-transform: uppercase;
+        margin-bottom: 5px;
+    }
+    
+    .info-item .value {
+        font-size: 18px;
+        font-weight: 600;
+        color: #2c3e50;
+    }
+    
+    .badge {
+        display: inline-block;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: bold;
+    }
+    
+    .badge-critical {
+        background: #e74c3c;
+        color: white;
+    }
+    
+    .badge-high {
+        background: #f39c12;
+        color: white;
+    }
+    
+    .badge-medium {
+        background: #3498db;
+        color: white;
+    }
+    
+    .section {
+        margin-bottom: 30px;
+    }
+    
+    .section h3 {
+        color: #2c3e50;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #667eea;
+    }
+    
+    .stats {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .stat-card {
+        flex: 1;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+    }
+    
+    .stat-card .number {
+        font-size: 36px;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    
+    .stat-card .label {
+        font-size: 14px;
+        opacity: 0.9;
+    }
+    
+    .donors-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 5px;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .donors-table thead {
+        background: #2c3e50;
+        color: white;
+    }
+    
+    .donors-table th,
+    .donors-table td {
+        padding: 15px;
+        text-align: left;
+    }
+    
+    .donors-table tbody tr:nth-child(even) {
+        background: #f8f9fa;
+    }
+    
+    .donors-table tbody tr:hover {
+        background: #e9ecef;
+    }
+    
+    .no-data {
+        text-align: center;
+        padding: 40px;
+        color: #777;
+        font-style: italic;
+    }
+    
+    .back-link {
+        margin-bottom: 20px;
+        display: inline-block;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="detail-container">
+    <a href="{% url 'admin_create_request' %}" class="back-link btn">← Create Another Request</a>
+    
+    <h2>Blood Request Details</h2>
+    
+    <div class="request-info">
+        <div class="info-grid">
+            <div class="info-item">
+                <label>Request ID</label>
+                <div class="value">#{{ blood_request.id }}</div>
+            </div>
+            
+            <div class="info-item">
+                <label>Blood Group</label>
+                <div class="value">{{ blood_request.blood_group }}</div>
+            </div>
+            
+            <div class="info-item">
+                <label>Units Needed</label>
+                <div class="value">{{ blood_request.units_needed }}</div>
+            </div>
+            
+            <div class="info-item">
+                <label>Urgency</label>
+                <div class="value">
+                    <span class="badge badge-{{ blood_request.urgency }}">
+                        {{ blood_request.get_urgency_display }}
+                    </span>
+                </div>
+            </div>
+            
+            <div class="info-item">
+                <label>Created By</label>
+                <div class="value">{{ blood_request.created_by.username }}</div>
+            </div>
+            
+            <div class="info-item">
+                <label>Created At</label>
+                <div class="value">{{ blood_request.created_at|date:"M d, Y H:i" }}</div>
+            </div>
+        </div>
+        
+        {% if blood_request.note %}
+        <div style="margin-top: 20px; padding: 15px; background: white; border-radius: 5px;">
+            <label style="display: block; font-size: 12px; color: #777; text-transform: uppercase; margin-bottom: 5px;">Notes</label>
+            <div style="color: #2c3e50;">{{ blood_request.note }}</div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="section">
+        <div class="stats">
+            <div class="stat-card">
+                <div class="number">{{ notified_count }}</div>
+                <div class="label">Donors Notified</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="number">{{ accepted_responses|length }}</div>
+                <div class="label">Donors Accepted</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h3>Accepted Donors</h3>
+        
+        {% if accepted_responses %}
+            <table class="donors-table">
+                <thead>
+                    <tr>
+                        <th>Donor Username</th>
+                        <th>Phone</th>
+                        <th>Blood Group</th>
+                        <th>Responded At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for response in accepted_responses %}
+                        <tr>
+                            <td><strong>{{ response.donor.username }}</strong></td>
+                            <td>{{ response.donor.donor_profile.phone }}</td>
+                            <td><span class="badge" style="background: #27ae60;">{{ response.donor.donor_profile.blood_group }}</span></td>
+                            <td>{{ response.responded_at|date:"M d, Y H:i" }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="no-data">
+                No donors have accepted this request yet.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

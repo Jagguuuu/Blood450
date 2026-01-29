@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Blood Request - Admin{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .form-container {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .form-container h2 {
+        color: #2c3e50;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #555;
+        font-weight: 500;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 16px;
+        font-family: inherit;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #667eea;
+    }
+    
+    .form-group textarea {
+        min-height: 100px;
+        resize: vertical;
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin-top: 30px;
+    }
+    
+    .badge {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 3px;
+        font-size: 12px;
+        font-weight: bold;
+    }
+    
+    .badge-critical {
+        background: #e74c3c;
+        color: white;
+    }
+    
+    .badge-high {
+        background: #f39c12;
+        color: white;
+    }
+    
+    .badge-medium {
+        background: #3498db;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h2>Create Blood Request</h2>
+    
+    <form method="post" action="">
+        {% csrf_token %}
+        
+        <!-- Debug: Check if CSRF token is present -->
+        <!-- {{ csrf_token }} -->
+        
+        <div class="form-group">
+            <label for="blood_group">Blood Group: *</label>
+            <select id="blood_group" name="blood_group" required>
+                <option value="">Select Blood Group</option>
+                {% for value, label in blood_groups %}
+                    <option value="{{ value }}">{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="units_needed">Units Needed: *</label>
+            <input type="number" id="units_needed" name="units_needed" min="1" value="1" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="urgency">Urgency Level: *</label>
+            <select id="urgency" name="urgency" required>
+                <option value="">Select Urgency</option>
+                {% for value, label in urgency_levels %}
+                    <option value="{{ value }}">{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="note">Additional Notes:</label>
+            <textarea id="note" name="note" placeholder="Enter any additional information about the blood request..."></textarea>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-success">Create Request & Notify Donors</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
